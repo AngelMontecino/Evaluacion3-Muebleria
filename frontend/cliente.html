@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo | Muebles Hnos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #2c3e50; --accent: #e67e22; --bg: #f8f9fa; }
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        body { margin: 0; background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
+
+        /* HEADER */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px;
+            background: white; border-bottom: 4px solid var(--dark);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; z-index: 10;
+        }
+        .brand { font-weight: 800; font-size: 1.5rem; color: var(--dark); }
+        .brand span { color: var(--accent); }
+        .btn-outline { 
+            text-decoration: none; color: var(--dark); border: 2px solid var(--dark); 
+            padding: 8px 15px; font-weight: bold; font-size: 0.9rem; 
+        }
+        .btn-outline:hover { background: var(--dark); color: white; }
+
+        /* LAYOUT PRINCIPAL */
+        .container { display: flex; width: 100%; margin-top: 70px; height: calc(100vh - 70px); }
+        
+        /* ZONA PRODUCTOS (IZQUIERDA) */
+        .catalog-area { flex: 1; padding: 30px; overflow-y: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        
+        .card {
+            background: white; border: 1px solid #ddd; transition: 0.2s;
+            display: flex; flex-direction: column;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        
+        /* CABECERA DE TEXTO */
+
+        
+        .text-header {
+            height: 150px; 
+            background: #eee; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid #ddd;
+        }
+        .text-header h3 { 
+            margin: 0; 
+            font-size: 1.1rem; 
+            color: var(--dark);
+            font-weight: 800;
+            line-height: 1.3;
+        }
+        .text-header small {
+            text-transform: uppercase;
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .badge {
+            position: absolute; top: 10px; right: 10px; background: var(--dark); 
+            color: white; padding: 4px 8px; font-size: 0.7rem; font-weight: bold;
+        }
+
+        .card-body { padding: 15px; }
+        .card p { margin: 0; font-size: 0.85rem; color: #777; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .price { font-weight: 800; font-size: 1.2rem; color: var(--dark); }
+        
+        .btn-add {
+            border: none; background: var(--dark); color: white; width: 30px; height: 30px; 
+            cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-add:hover { background: var(--accent); }
+
+        /* CARRITO (DERECHA) */
+
+
+
+        .cart-panel {
+            width: 350px; background: white; border-left: 1px solid #ddd;
+            display: flex; flex-direction: column; padding: 20px;
+        }
+        .cart-title { font-weight: 800; text-transform: uppercase; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .cart-items { flex: 1; overflow-y: auto; }
+        .cart-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .cart-row button { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        
+        .checkout-btn {
+            background: var(--accent); color: white; border: none; padding: 15px;
+            font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 20px;
+        }
+        .checkout-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+ 
+
+
+
+        #selector {
+            background: #fdfdfd; border: 2px solid var(--dark); padding: 15px; margin-bottom: 20px; display: none;
+        }
+        select, input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">MUEBLES<span>HNOS</span></div>
+        <a href="index.html" class="btn-outline">Salir</a>
+    </header>
+
+    <div class="container">
+        <div class="catalog-area">
+            <h2 style="margin-top:0">Catálogo</h2>
+            <div id="grid" class="grid"></div>
+        </div>
+
+        <div class="cart-panel">
+            <div class="cart-title">Tu Pedido</div>
+            
+            <div id="selector">
+                <strong id="selName">Producto</strong>
+                <input type="hidden" id="selId">
+                <select id="selVar"></select>
+                <div style="display:flex; gap:5px;">
+                    <input type="number" id="selCant" value="1" min="1" style="width:60px">
+                    <button onclick="confirmarAdd()" style="flex:1; background:var(--dark); color:white; border:none; cursor:pointer;">Añadir</button>
+                </div>
+                <small onclick="cancelar()" style="cursor:pointer; text-decoration:underline;">Cancelar</small>
+            </div>
+
+            <div id="cartList" class="cart-items">
+                <p style="color:#999; text-align:center; margin-top:50px;">Carrito vacío</p>
+            </div>
+            
+            <button id="btnPay" class="checkout-btn" onclick="pagar()" disabled>Confirmar Compra</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const API = "http://localhost:8080/api";
+        let carrito = [];
+        let variantesCache = [];
+
+        async function init() {
+            const [resM, resV] = await Promise.all([
+                fetch(`${API}/muebles`),
+                fetch(`${API}/ventas/variantes`)
+            ]);
+            const muebles = await resM.json();
+            variantesCache = await resV.json();
+            
+            render(muebles);
+        }
+
+        function render(muebles) {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+
+            muebles.filter(m => m.estado === 'ACTIVO').forEach(m => {
+                grid.innerHTML += `
+                <div class="card">
+                    <div class="text-header">
+                        <span class="badge">${m.stock}</span>
+                        <h3>${m.nombreMueble}</h3>
+                        <small>${m.tipo}</small>
+                    </div>
+                    
+                    <div class="card-body">
+                        <p>${m.material} - ${m.tamano}</p>
+                        <div class="price-row">
+                            <span class="price">$${m.precioBase}</span>
+                            <button class="btn-add" onclick="preparar(${m.idMueble}, '${m.nombreMueble}')">+</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function toggleCart() {
+            document.getElementById("cartSidebar").classList.toggle("cart-visible");
+        }
+
+        function preparar(id, nombre) {
+            document.getElementById("selector").style.display = "block";
+            document.getElementById("selName").innerText = nombre;
+            document.getElementById("selId").value = id;
+            
+            const select = document.getElementById("selVar");
+            select.innerHTML = variantesCache.map(v => 
+                `<option value="${v.id}">${v.nombre} ${v.aumentoPrecio > 0 ? '(+$'+v.aumentoPrecio+')' : ''}</option>`
+            ).join("");
+        }
+
+        function cancelar() { document.getElementById("selector").style.display = "none"; }
+
+        function confirmarAdd() {
+            const id = document.getElementById("selId").value;
+            const nombre = document.getElementById("selName").innerText;
+            const vId = document.getElementById("selVar").value;
+            const cant = document.getElementById("selCant").value;
+            
+            const vNombre = variantesCache.find(v => v.id == vId).nombre;
+
+            carrito.push({ muebleId: parseInt(id), varianteId: parseInt(vId), cantidad: parseInt(cant), _desc: `${nombre} (${vNombre})` });
+            
+            document.getElementById("selector").style.display = "none";
+            actualizarCarritoUI();
+        }
+
+        function actualizarCarritoUI() {
+            const lista = document.getElementById("cartList");
+            
+            if(carrito.length === 0) {
+                lista.innerHTML = '<p style="color:#999; text-align:center; margin-top:50px;">Carrito vacío</p>';
+                document.getElementById("btnPay").disabled = true;
+                return;
+            }
+
+            lista.innerHTML = carrito.map((item, i) => `
+                <div class="cart-row">
+                    <div class="small">
+                        <div style="font-weight:bold;">${item._desc}</div>
+                        <div style="color:#666;">Cant: ${item.cantidad}</div>
+                    </div>
+                    <button onclick="borrar(${i})" style="color:red;">✕</button>
+                </div>
+            `).join("");
+            document.getElementById("btnPay").disabled = false;
+        }
+
+        function borrar(i) {
+            carrito.splice(i, 1);
+            actualizarCarritoUI();
+        }
+
+        async function pagar() {
+            try {
+                const items = carrito.map(({_desc, ...rest}) => rest);
+                
+                const res = await fetch(`${API}/ventas/cotizar`, {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ items })
+                });
+
+                if(!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Cotización #' + data.id + '!',
+                    html: `<h3 style="color:#2ecc71;">$${data.total}</h3><p>Estado: ${data.estado}</p>`,
+                    confirmButtonText: 'Pagar ahora',
+                    confirmButtonColor: '#2c3e50',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cerrar'
+                }).then((r) => {
+                    if(r.isConfirmed) confirmarVenta(data.id);
+                    else {
+                        carrito = [];
+                        actualizarCarritoUI();
+                    }
+                });
+
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+
+        async function confirmarVenta(id) {
+            try {
+                const res = await fetch(`${API}/ventas/confirmar/${id}`, { method:'POST' });
+                if(!res.ok) throw new Error((await res.json()).message);
+                
+                Swal.fire('¡Pago Exitoso!', 'Stock descontado.', 'success');
+                carrito = [];
+                actualizarCarritoUI();
+                init(); 
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+
+        init();
+    </script>
+</body>
+</html>

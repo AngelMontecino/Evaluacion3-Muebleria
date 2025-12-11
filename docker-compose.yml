@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Base de Datos MySQL
+  mysqldb:
+    image: mysql:8.0
+    container_name: muebleria_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306" 
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - muebleria-net
+
+  # Backend 
+  backend:
+    build: ./backend
+    container_name: muebleria_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+    environment:
+      MYSQL_URL: ${MYSQL_URL}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASS: ${MYSQL_PASS}
+    networks:
+      - muebleria-net
+
+  # Frontend 
+  frontend:
+    build: ./frontend
+    container_name: muebleria_frontend
+    ports:
+      - "3000:80" 
+    depends_on:
+      - backend
+    networks:
+      - muebleria-net
+
+volumes:
+  db_data:
+
+networks:
+  muebleria-net:
+    driver: bridge

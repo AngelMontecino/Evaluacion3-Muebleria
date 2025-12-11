@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin | Gustavo</title>
+    <style>
+        :root { --dark: #2c3e50; --accent: #e67e22; --light: #ecf0f1; }
+        body { margin: 0; font-family: 'Montserrat', sans-serif; display: flex; height: 100vh; background: #f4f4f4; }
+
+        /* CONTENIDO */
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { margin: 0; color: var(--dark); }
+
+        /* GRID */
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .panel { background: white; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid var(--dark); }
+        .panel h3 { margin-top: 0; color: var(--accent); }
+
+        /* FORMULARIOS */
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        input, select { flex: 1; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; }
+        button.btn-main { background: var(--dark); color: white; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+        button.btn-main:hover { background: #000; }
+
+        /* TABLAS */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #888; text-transform: uppercase; font-size: 0.8rem; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .act { background: #d4edda; color: #155724; }
+        .ina { background: #f8d7da; color: #721c24; }
+        .low { color: red; font-weight: bold; }
+
+        .btn-act { border: 1px solid #ccc; background: white; cursor: pointer; padding: 2px 8px; font-size: 0.8rem; }
+        .btn-act:hover { background: #eee; }
+    </style>
+</head>
+<body>
+
+    <div class="content">
+        <div class="header">
+            <h1>Hola, Gustavo</h1>
+            <button class="btn-act" onclick="cargar()">Actualizar</button>
+        </div>
+
+        <div class="grid">
+            <div class="panel">
+                <h3>Nuevo Producto</h3>
+                <div class="form-row">
+                    <input id="mNom" placeholder="Nombre">
+                    <input id="mTip" placeholder="Tipo">
+                    <input id="mPre" type="number" placeholder="Precio">
+                </div>
+                <div class="form-row">
+                    <input id="mSto" type="number" placeholder="Stock">
+                    <select id="mTam"><option>GRANDE</option><option>MEDIANO</option><option>PEQUENO</option></select>
+                    <input id="mMat" placeholder="Material">
+                    <button class="btn-main" onclick="crearM()">GUARDAR</button>
+                </div>
+
+                <h3 style="margin-top:30px; color:#555;">Inventario</h3>
+                <div style="height:350px; overflow-y:auto;">
+                    <table>
+                        <thead><tr><th>ID</th><th>Nombre</th><th>Stock</th><th>Estado</th><th>Acción</th></tr></thead>
+                        <tbody id="tMuebles"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="panel" style="margin-bottom:20px; border-color: var(--accent);">
+                    <h3>Variantes</h3>
+                    <div class="form-row">
+                        <input id="vNom" placeholder="Nombre">
+                        <input id="vPre" type="number" placeholder="$ Extra">
+                        <button class="btn-main" style="background:var(--accent)" onclick="crearV()">+</button>
+                    </div>
+                    <ul id="lVar" style="list-style:none; padding:0; font-size:0.9rem;"></ul>
+                </div>
+
+                <div class="panel">
+                    <h3>Últimas Cotizaciones</h3>
+                    <div style="height:250px; overflow-y:auto;">
+                        <table>
+                            <thead><tr><th>ID</th><th>Total</th><th>Estado</th></tr></thead>
+                            <tbody id="tCot"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+          <a href="index.html" class="menu-item logout">Cerrar Sesión</a>
+    </div>
+
+    <script>
+        const API = "http://localhost:8080/api";
+
+        async function cargar() {
+            const [rM, rV, rC] = await Promise.all([fetch(API+"/muebles"), fetch(API+"/ventas/variantes"), fetch(API+"/ventas/cotizaciones")]);
+            
+            // Muebles
+            const muebles = await rM.json();
+            document.getElementById("tMuebles").innerHTML = muebles.map(m => `
+                <tr style="opacity:${m.estado==='INACTIVO'?0.5:1}">
+                    <td>#${m.idMueble}</td>
+                    <td><b>${m.nombreMueble}</b><br><small>${m.tipo}</small></td>
+                    <td class="${m.stock<5?'low':''}">${m.stock}</td>
+                    <td><span class="badge ${m.estado==='ACTIVO'?'act':'ina'}">${m.estado}</span></td>
+                    <td><button class="btn-act" onclick="toggle(${m.idMueble}, '${m.estado}')">Activar/Desactivar</button></td>
+                </tr>
+            `).join("");
+
+            // Variantes
+            const vars = await rV.json();
+            document.getElementById("lVar").innerHTML = vars.map(v => `<li style="border-bottom:1px solid #eee; padding:5px 0; display:flex; justify-content:space-between;"><span>${v.nombre}</span> <b>+$${v.aumentoPrecio}</b></li>`).join("");
+
+            // Cotiz
+            const cots = await rC.json();
+            document.getElementById("tCot").innerHTML = cots.sort((a,b)=>b.id-a.id).map(c => `
+                <tr>
+                    <td>#${c.id}</td><td>$${c.total}</td>
+                    <td>${c.estado==='PENDIENTE'?`<button style="color:red;border:none;background:none;cursor:pointer;" onclick="cancelar(${c.id})">CANCELAR</button>`:c.estado}</td>
+                </tr>
+            `).join("");
+        }
+
+        async function crearM() {
+            const data = {
+                nombreMueble: document.getElementById('mNom').value, tipo: document.getElementById('mTip').value,
+                precioBase: document.getElementById('mPre').value, stock: document.getElementById('mSto').value,
+                tamano: document.getElementById('mTam').value, material: document.getElementById('mMat').value
+            };
+            if(!data.nombreMueble) return alert("Faltan datos");
+            await fetch(API+"/muebles", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            cargar();
+        }
+
+        async function crearV() {
+            const data = { nombre: document.getElementById('vNom').value, aumentoPrecio: document.getElementById('vPre').value };
+            await fetch(API+"/ventas/variantes", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            cargar();
+        }
+
+        async function toggle(id, est) {
+            await fetch(`${API}/muebles/${id}/${est==='ACTIVO'?'desactivar':'activar'}`, {method:'PUT'});
+            cargar();
+        }
+
+        async function cancelar(id) {
+            if(confirm("¿Cancelar?")) {
+                await fetch(`${API}/ventas/cancelar/${id}`, {method:'PUT'});
+                cargar();
+            }
+        }
+
+        cargar();
+        setInterval(cargar, 5000);
+    </script>
+</body>
+</html>

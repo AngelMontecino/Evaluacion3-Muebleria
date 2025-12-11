@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mueblería Hnos S.A.</title>
+
+    <style>
+        :root {
+            --dark-bg: #2c3e50;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --text-grey: #7f8c8d;
+        }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background: var(--light); 
+            height: 100vh; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .main-card {
+            background: white;
+            display: flex;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--dark-bg);
+        }
+
+        /* Lado Izquierdo (Marca) */
+        .brand-section {
+            background: var(--dark-bg);
+            color: white;
+            padding: 50px;
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        .brand-section h1 { margin: 0; font-size: 3rem; line-height: 1; }
+        .accent-text { color: var(--accent); }
+        .brand-icon { font-size: 4rem; margin-top: 20px; }
+
+        /* Lado Derecho (Botones) */
+        .login-section {
+            padding: 50px;
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        h3 { color: var(--text-grey); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; font-size: 0.9rem; }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--dark-bg);
+            text-decoration: none;
+            color: var(--dark-bg);
+            transition: 0.2s;
+        }
+        .profile-btn:hover {
+            background: var(--dark-bg);
+            color: white;
+            transform: translateX(10px);
+        }
+        
+        .profile-btn.admin { border-color: var(--accent); color: var(--accent); }
+        .profile-btn.admin:hover { background: var(--accent); color: white; }
+
+        .icon { font-size: 2rem; margin-right: 20px; }
+        .title { display: block; font-weight: 800; font-size: 1.2rem; }
+        .desc { font-size: 0.8rem; opacity: 0.8; font-weight: 300; }
+
+      
+        @media (max-width: 768px) {
+            .main-card { flex-direction: column; }
+            .brand-section, .login-section { width: 100%; padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <div class="brand-section">
+            <h1>MUEBLES<br><span class="accent-text">HNOS.</span></h1>
+        </div>
+        
+        <div class="login-section">
+            <h3>Seleccione Perfil</h3>
+            
+            <a href="cliente.html" class="profile-btn">
+                <div>
+                    <span class="title">Cliente</span>
+                    <span class="desc">Catálogo y Compras</span>
+                </div>
+            </a>
+
+            <a href="gustavo.html" class="profile-btn admin">
+                <div class="icon"></div>
+                <div>
+                    <span class="title">Administración</span>
+                    <span class="desc">Acceso Gustavo</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
