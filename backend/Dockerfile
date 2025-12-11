@@ -1,23 +1,18 @@
 
 FROM eclipse-temurin:21-jdk-alpine
 
-
 WORKDIR /app
 
+RUN apk add --no-cache maven
 
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+COPY pom.xml .
 
-
-RUN ./mvnw dependency:go-offline
-
+RUN mvn dependency:go-offline
 
 COPY src ./src
 
-
-RUN ./mvnw package -DskipTests
+RUN mvn package -DskipTests
 
 EXPOSE 8080
-
 
 CMD ["java", "-jar", "target/muebleria-api-0.0.1-SNAPSHOT.jar"]
