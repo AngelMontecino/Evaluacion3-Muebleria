@@ -1,4 +1,4 @@
- package cl.muebleria.api.service;
+package cl.muebleria.api.service;
 
 import cl.muebleria.api.model.*;
 import cl.muebleria.api.repository.*;
@@ -21,11 +21,17 @@ public class VentaService {
     @Autowired
     private CotizacionRepository cotizacionRepository;
 
-    // calculo de precio 
+    // VALIDACIÓN DE VARIANTE 
+    public Variante crearVariante(Variante variante) {
+        if (variante.getAumentoPrecio() < 0) {
+            throw new IllegalArgumentException("El aumento de precio no puede ser negativo.");
+        }
+        return varianteRepository.save(variante);
+    }
+
     public double calcularPrecioItem(Mueble mueble, Variante variante, int cantidad) {
         double precioUnitario = mueble.getPrecioBase();
         
-     
         if (variante.getAumentoPrecio() > 0) {
             precioUnitario += variante.getAumentoPrecio();
         }
@@ -40,6 +46,11 @@ public class VentaService {
 
         for (ItemCotizacionDTO itemDTO : requestDTO.getItems()) {
             
+       
+            if (itemDTO.getCantidad() <= 0) {
+                throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
+            }
+        
          
             Mueble mueble = muebleRepository.findById(itemDTO.getMuebleId())
                     .orElseThrow(() -> new ResourceNotFoundException("Mueble no encontrado"));
@@ -47,23 +58,19 @@ public class VentaService {
             Variante variante = varianteRepository.findById(itemDTO.getVarianteId())
                     .orElseThrow(() -> new ResourceNotFoundException("Variante no encontrada"));
 
-      
             ItemCotizacion item = new ItemCotizacion();
             item.setMueble(mueble);
             item.setVariante(variante);
             item.setCantidad(itemDTO.getCantidad());
             
-        
             cotizacion.addItem(item);
 
-         
             totalCotizacion += calcularPrecioItem(mueble, variante, itemDTO.getCantidad());
         }
 
         cotizacion.setTotal(totalCotizacion);
         return cotizacionRepository.save(cotizacion);
     }
-
 
     // Confirmar Venta 
     @Transactional 
@@ -75,7 +82,6 @@ public class VentaService {
         if (cotizacion.getEstado() == EstadoCotizacion.VENDIDA) {
             throw new RuntimeException("Esta cotización ya fue vendida.");
         }
-
     
         for (ItemCotizacion item : cotizacion.getItems()) {
             Mueble mueble = item.getMueble();
@@ -84,7 +90,6 @@ public class VentaService {
             }
         }
         
-       
         for (ItemCotizacion item : cotizacion.getItems()) {
             Mueble mueble = item.getMueble();
             int nuevoStock = mueble.getStock() - item.getCantidad();
@@ -99,23 +104,22 @@ public class VentaService {
     public List<Cotizacion> listarTodasLasCotizaciones() {
         return cotizacionRepository.findAll();
     }
-
     
     @Transactional
     public Cotizacion cancelarCotizacion(Long cotizacionId) {
         
         Cotizacion cotizacion = cotizacionRepository.findById(cotizacionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada")); //
+                .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
 
-        if (cotizacion.getEstado() == EstadoCotizacion.VENDIDA) { //
-            throw new RuntimeException("No se puede cancelar una cotización que ya fue vendIDA.");
+        if (cotizacion.getEstado() == EstadoCotizacion.VENDIDA) {
+            throw new RuntimeException("No se puede cancelar una cotización que ya fue vendida.");
         }
         
-        if (cotizacion.getEstado() == EstadoCotizacion.CANCELADA) { //
+        if (cotizacion.getEstado() == EstadoCotizacion.CANCELADA) {
             throw new RuntimeException("Esta cotización ya se encuentra cancelada.");
         }
 
-        cotizacion.setEstado(EstadoCotizacion.CANCELADA); //
+        cotizacion.setEstado(EstadoCotizacion.CANCELADA);
         return cotizacionRepository.save(cotizacion);
     }
 }

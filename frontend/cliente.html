@@ -215,6 +215,11 @@
             const vId = document.getElementById("selVar").value;
             const cant = document.getElementById("selCant").value;
             
+            if (cant < 1) {
+                Swal.fire("Error", "La cantidad debe ser al menos 1", "warning");
+                return;
+            }
+            
             const vNombre = variantesCache.find(v => v.id == vId).nombre;
 
             carrito.push({ muebleId: parseInt(id), varianteId: parseInt(vId), cantidad: parseInt(cant), _desc: `${nombre} (${vNombre})` });

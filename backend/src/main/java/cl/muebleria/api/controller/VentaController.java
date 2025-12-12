@@ -47,7 +47,7 @@ public class VentaController {
     // crear Nueva Variante
     @PostMapping("/variantes")
     public Variante crearVariante(@RequestBody Variante variante) {
-        return varianteRepository.save(variante);
+        return ventaService.crearVariante(variante);
     }
     
     // listar cotizaciones

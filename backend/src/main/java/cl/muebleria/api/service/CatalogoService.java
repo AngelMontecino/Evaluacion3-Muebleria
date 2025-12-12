@@ -1,4 +1,4 @@
- package cl.muebleria.api.service;
+package cl.muebleria.api.service;
 
 import cl.muebleria.api.model.Mueble;
 import cl.muebleria.api.model.EstadoMueble;
@@ -14,31 +14,40 @@ public class CatalogoService {
     @Autowired
     private MuebleRepository muebleRepository;
 
-   
-
-
     public Mueble crearMueble(Mueble mueble) {
+      
+        if (mueble.getPrecioBase() < 0) {
+            throw new IllegalArgumentException("El precio no puede ser negativo.");
+        }
+        if (mueble.getStock() < 0) {
+            throw new IllegalArgumentException("El stock inicial no puede ser negativo.");
+        }
+      
+
         mueble.setEstado(EstadoMueble.ACTIVO); // Por defecto
         return muebleRepository.save(mueble);
     }
     
-    
-
     public List<Mueble> listarTodosLosMuebles() {
         return muebleRepository.findAll();
     }
-    
-    
 
     public Mueble getMueblePorId(Long id) {
         return muebleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mueble no encontrado con id: " + id));
     }
-
-
     
     public Mueble actualizarMueble(Long id, Mueble muebleDetalles) {
-        Mueble mueble = getMueblePorId(id); // Reutiliza el método de arriba
+   
+        if (muebleDetalles.getPrecioBase() < 0) {
+            throw new IllegalArgumentException("El precio no puede ser negativo.");
+        }
+        if (muebleDetalles.getStock() < 0) {
+            throw new IllegalArgumentException("El stock no puede ser negativo.");
+        }
+
+
+        Mueble mueble = getMueblePorId(id); 
 
         mueble.setNombreMueble(muebleDetalles.getNombreMueble());
         mueble.setPrecioBase(muebleDetalles.getPrecioBase());
@@ -50,7 +59,6 @@ public class CatalogoService {
         return muebleRepository.save(mueble);
     }
 
-   
     public Mueble desactivarMueble(Long id) {
         Mueble mueble = getMueblePorId(id);
         mueble.setEstado(EstadoMueble.INACTIVO);
@@ -58,9 +66,8 @@ public class CatalogoService {
     }
 
     public Mueble activarMueble(Long id) {
-        
         Mueble mueble = getMueblePorId(id); 
-        mueble.setEstado(cl.muebleria.api.model.EstadoMueble.ACTIVO);
+        mueble.setEstado(EstadoMueble.ACTIVO);
         return muebleRepository.save(mueble);
     }
 }

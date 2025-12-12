@@ -126,20 +126,43 @@
             `).join("");
         }
 
-        async function crearM() {
+  async function crearM() {
+            const nombre = document.getElementById('mNom').value;
+            const precio = parseFloat(document.getElementById('mPre').value);
+            const stock = parseInt(document.getElementById('mSto').value);
+
+        
+            if(!nombre || isNaN(precio) || isNaN(stock)) return alert("Faltan datos");
+            if(precio < 0 || stock < 0) return alert("AVISO: El precio y el stock no pueden ser negativos.");
+         
+
             const data = {
-                nombreMueble: document.getElementById('mNom').value, tipo: document.getElementById('mTip').value,
-                precioBase: document.getElementById('mPre').value, stock: document.getElementById('mSto').value,
-                tamano: document.getElementById('mTam').value, material: document.getElementById('mMat').value
+                nombreMueble: nombre,
+                tipo: document.getElementById('mTip').value,
+                precioBase: precio,
+                stock: stock,
+                tamano: document.getElementById('mTam').value,
+                material: document.getElementById('mMat').value
             };
-            if(!data.nombreMueble) return alert("Faltan datos");
+            
             await fetch(API+"/muebles", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
             cargar();
+       
+            ['mNom','mTip','mPre','mSto','mMat'].forEach(id => document.getElementById(id).value = '');
         }
 
         async function crearV() {
-            const data = { nombre: document.getElementById('vNom').value, aumentoPrecio: document.getElementById('vPre').value };
+            const nombre = document.getElementById('vNom').value;
+            const precio = parseFloat(document.getElementById('vPre').value);
+
+            if(!nombre) return;
+            if(precio < 0) return alert("AVISO: El aumento de precio no puede ser negativo.");
+    
+
+            const data = { nombre: nombre, aumentoPrecio: precio || 0 };
             await fetch(API+"/ventas/variantes", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            document.getElementById('vNom').value = '';
+            document.getElementById('vPre').value = '';
             cargar();
         }
 
